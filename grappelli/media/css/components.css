@@ -173,7 +173,9 @@ fieldset.module .row + .module {
 ------------------------------------------------------------------------------------------------------ */
 
 fieldset.module .row {
+    /* why? remove completely if no one has a good reason for it anymore.
     overflow: hidden;
+     */
     padding: 8px 10px;
     line-height: 18px;
     font-weight: normal;
