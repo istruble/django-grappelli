@@ -52,10 +52,22 @@ function showRelatedObjectLookupPopup(triggeringLink) {
 function dismissRelatedLookupPopup(win, chosenId) {
     var name = windowname_to_id(win.name);
     var elem = document.getElementById(name);
-    if (elem.className.indexOf('vManyToManyRawIdAdminField') != -1 && elem.value) {
+    var autocomplete_elem = django && django.jQuery && django.jQuery(elem);
+    if (!!autocomplete_elem && !!autocomplete_elem.data('djangoautocomplete')) {
+        django.jQuery.getJSON(
+                autocomplete_elem.data('djangoautocomplete').options.source,
+                {term: chosenId, by_id: 1},
+                function (data) {
+                    // Pass the returned item to the normal
+                    // autocomplete onSelect handler.
+                    autocomplete_elem.data('autocomplete')
+                        .options.select({}, {item: data[0]});
+                });
+    }
+    else if (elem.className.indexOf('vManyToManyRawIdAdminField') != -1 && elem.value) {
         elem.value += ',' + chosenId;
     } else {
-        document.getElementById(name).value = chosenId;
+        elem.value = chosenId;
     }
     // grappelli custom
     elem.focus();
@@ -86,13 +98,23 @@ function dismissAddAnotherPopup(win, newId, newRepr) {
     newRepr = html_unescape(newRepr);
     var name = windowname_to_id(win.name);
     var elem = document.getElementById(name);
+    var autocomplete_elem;
     if (elem) {
         if (elem.nodeName == 'SELECT') {
             var o = new Option(newRepr, newId);
             elem.options[elem.options.length] = o;
             o.selected = true;
         } else if (elem.nodeName == 'INPUT') {
-            if (elem.className.indexOf('vManyToManyRawIdAdminField') != -1 && elem.value) {
+            autocomplete_elem = django && django.jQuery && django.jQuery(elem);
+            if (!!autocomplete_elem && !!autocomplete_elem.data('djangoautocomplete')) {
+                django.jQuery.getJSON(
+                      autocomplete_elem.data('djangoautocomplete').options.source,
+                      {term: newId, by_id: 1},
+                      function (data) {
+                        autocomplete_elem.data('autocomplete')
+                          .options.select({}, {item: data[0]});
+                      });
+            } else if (elem.className.indexOf('vManyToManyRawIdAdminField') != -1 && elem.value) {
                 elem.value += ',' + newId;
             } else {
                 elem.value = newId;

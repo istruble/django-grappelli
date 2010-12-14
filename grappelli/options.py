@@ -3,7 +3,7 @@ import operator
 from django.contrib import admin
 from django.db import models
 from django.db.models.query import QuerySet
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, Http404
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from grappelli.widgets import AutocompleteWidget, MultipleAutocompleteWidget
@@ -58,6 +58,7 @@ class AutoCompleteModelAdmin(admin.ModelAdmin):
 
     def autocomplete(self, request, field, extra_content=None):
         query = request.GET.get('term', None)
+        query_by_id = request.GET.get('by_id', None) is not None
 
         if field not in self.autocomplete_fields or query is None:
             raise Http404
@@ -75,6 +76,10 @@ class AutoCompleteModelAdmin(admin.ModelAdmin):
                 return "%s__search" % field_name[1:]
             else:
                 return "%s__icontains" % field_name
+
+        if query_by_id:
+            # lookup only via an exact match on id
+            settings['fields'] = ('=id',)
 
         for bit in query.split():
             or_queries = [models.Q(**{construct_search(
