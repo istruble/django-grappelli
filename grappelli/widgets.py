@@ -15,7 +15,7 @@ class AutocompleteWidget(forms.Widget):
                 ),
         }
         js = (
-            settings.ADMIN_MEDIA_PREFIX+'js/autocomplete.js',
+            settings.ADMIN_MEDIA_PREFIX+'js/admin/autocomplete.js',
         )
 
     def __init__(self, settings, attrs=None, using=None, **js_options):
